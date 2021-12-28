@@ -38,14 +38,6 @@ router.post('/signin', (req, res) => {
     })
 })
 
-// router.post('/createGroupe', (req, res) => {
-//     let groupe = req.body
-//     db.query('insert into groupes set ?', groupe, function(err, result){
-//         if (err) throw err;
-//         res.send('insert successful')
-//     })
-// })
-
 
 
 

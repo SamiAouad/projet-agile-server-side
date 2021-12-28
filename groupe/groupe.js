@@ -15,9 +15,46 @@ router.post('/joinGroupe/:userId/:groupeId', (req, res) => {
     }
     db.query('insert into demandeGroupes set ?', demandeGroupe, function(err, result){
         if (err) throw err;
-        res.send('insert successful')
+        res.send(true)
     })
 })
 
+router.post('/createGroupe', (req, res) => {
+    let groupe = req.body
+    db.query('insert into groupes set ?', groupe, function(err, result){
+        if (err) throw err;
+        res.send(true)
+    })
+})
+
+
+router.post('/accept/:id', (req, res) => {
+    let id = req.params.id
+    db.query('select userId, groupeId from demandeGroupes where id = ?', id, (err, result) => {
+        if (err) throw err;
+        let userId = result[0].userId
+        let groupeId = result[0].groupeId
+        let membre = {
+            "groupeId": groupeId,
+            "userId": userId,
+            "groupeRole": "membre"
+        }
+        db.query('insert into groupeMembers set ?', membre, (err, result) => {
+            if (err) throw err
+        })
+        db.query('delete from demandeGroupes where id = ?', id, function(err, result){
+            if (err) throw err;
+            res.send('true')
+        })
+    })
+})
+
+router.delete('/refuse/:id', (req, res) => {
+    let id = req.params.id
+    db.query('delete from demandeGroupes where id = ?', id, function(err, result){
+        if (err) throw err;
+        res.send('true')
+    })
+})
 module.exports = router
 

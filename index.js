@@ -1,8 +1,5 @@
 const express = require("express")
 const cors = require('cors');
-
-
-
 const app = express()
 
 const corsOptions = {
@@ -14,10 +11,12 @@ app.use(cors(corsOptions));
 
 const user = require('./user/user.js')
 const voyage = require('./voyage/voyage.js')
+const groupe = require('./groupe/groupe.js')
 
 
 app.use('/user', user, cors(corsOptions))
-app.use('/voyage', voyage)
+app.use('/groupe', groupe, cors(corsOptions))
+app.use('/voyage', voyage, cors(corsOptions))
 
 app.listen(5000)
 
