@@ -8,18 +8,18 @@ router.use(bodyParser.json())
 const db = require('../db.js')
 
 
-router.post('/createVoyage/:userId', (req, res) => {
+router.post('/createVoyage/:adminId', (req, res) => {
     let voyage = {
-        'adminId': req.params.userId,
+        'adminId': req.params.adminId,
         'price': req.body.price,
         'dateStart': req.body.dateStart,
         'dateEnd': req.body.dateEnd,
         'capacite': req.body.capacite,
-        'descriptionVoyage': req.body.descriptionVoyage
+        'descriptionVoyage': req.body.description
     }
     db.query('insert into voyages set ?', voyage, function(err, result){
         if (err) throw err;
-        res.send('insert successful')
+        res.send(true)
     })
 })
 

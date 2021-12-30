@@ -56,5 +56,19 @@ router.delete('/refuse/:id', (req, res) => {
         res.send('true')
     })
 })
+
+router.get('/getGroupes', (req, res) => {
+    db.query('select * from groupes', (err, result) => {
+        if (err) throw err;
+        if (result.length > 0)
+            return res.send(result)
+        return res.send(false)
+    })
+})
+
+router.post('/createVoyageGroupe', (req, res) => {
+    let voyage = req.body
+    
+})
 module.exports = router
 
