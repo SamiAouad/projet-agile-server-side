@@ -41,4 +41,26 @@ router.post('/signin', (req, res) => {
 
 
 
+router.get('/isMember/:userId', (req, res) => {
+    let userId = req.params.userId
+    db.query('select groupeId from groupeMembers where userId = ?', userId, function(err, result){
+        if (err) throw err;
+        if(result.length > 0)
+            res.send(result)
+        else
+            res.send(false)
+    })
+})
+
+router.get('/demandeExist/:userId', (req, res) => {
+    let userId = req.params.userId
+    db.query('select groupeId from demandeGroupes where userId = ?', userId, function(err, result){
+        if (err) throw err;
+        if(result.length > 0)
+            res.send(result)
+        else
+            res.send(false)
+    })
+})
+
 module.exports = router

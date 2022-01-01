@@ -76,9 +76,11 @@ router.delete('/refuse/:id', (req, res) => {
 router.get('/getGroupes', (req, res) => {
     db.query('select * from groupes', (err, result) => {
         if (err) res.send(false);
-        if (result.length > 0)
-            return res.send(result)
-        return res.send(false)
+        if (result.length > 0){
+            res.send(result)
+        }
+        else
+            res.send(false)
     })
 })
 
@@ -86,5 +88,7 @@ router.post('/createVoyageGroupe', (req, res) => {
     let voyage = req.body
     
 })
+
+
 module.exports = router
 
