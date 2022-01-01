@@ -5,20 +5,12 @@ const multer = require('multer')
 const router = express.Router()
 router.use(bodyParser.json())
 
+
 // parse application/x-www-form-urlencoded
 router.use(bodyParser.urlencoded({extended: true}));
 // serving static files
-router.use(express.static('uploads'));
-var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-       cb(null, 'uploads');
-    },
-    filename: function (req, file, cb) {
-       cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-    }
- });
 
-var upload = multer({ storage: storage });
+var upload = multer();
 
 
 const db = require('../db.js')
@@ -42,8 +34,9 @@ router.post('/getVoyages/:groupeId', (req, res) => {
     })
 })
 
-router.post('/createGroupe', upload.single('dataFile'), (req, res) => {
+router.post('/createGroupe', upload.single('file'), (req, res) => {
     let groupe = req.body
+    groupe['image'] = req.file
     db.query('insert into groupes set ?', groupe, function(err, result){
         if (err) throw err;
         res.send(result.insertId.toString())
