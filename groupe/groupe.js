@@ -1,8 +1,24 @@
 const express = require('express'), bodyParser = require('body-parser')
+const multer = require('multer')
 
 
 const router = express.Router()
 router.use(bodyParser.json())
+
+// parse application/x-www-form-urlencoded
+router.use(bodyParser.urlencoded({extended: true}));
+// serving static files
+router.use(express.static('uploads'));
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+       cb(null, 'uploads');
+    },
+    filename: function (req, file, cb) {
+       cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+    }
+ });
+
+var upload = multer({ storage: storage });
 
 
 const db = require('../db.js')
@@ -19,11 +35,18 @@ router.post('/joinGroupe/:userId/:groupeId', (req, res) => {
     })
 })
 
-router.post('/createGroupe', (req, res) => {
+router.post('/getVoyages/:groupeId', (req, res) => {
+    db.query('select * from voyages where groupeId = ?', req.params.groupeId, function(err, result) {
+        if (err) throw err
+        res.send(result)
+    })
+})
+
+router.post('/createGroupe', upload.single('dataFile'), (req, res) => {
     let groupe = req.body
     db.query('insert into groupes set ?', groupe, function(err, result){
         if (err) throw err;
-        res.send(true)
+        res.send(result.insertId.toString())
     })
 })
 
@@ -59,7 +82,7 @@ router.delete('/refuse/:id', (req, res) => {
 
 router.get('/getGroupes', (req, res) => {
     db.query('select * from groupes', (err, result) => {
-        if (err) throw err;
+        if (err) res.send(false);
         if (result.length > 0)
             return res.send(result)
         return res.send(false)

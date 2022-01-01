@@ -8,7 +8,7 @@ router.use(bodyParser.json())
 const db = require('../db.js')
 
 
-router.post('/createVoyage/:adminId', (req, res) => {
+router.post('/createVoyage/:adminId/:groupeId', (req, res) => {
     let voyage = {
         'adminId': req.params.adminId,
         'price': req.body.price,
