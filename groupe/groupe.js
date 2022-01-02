@@ -44,8 +44,15 @@ router.post('/createGroupe', upload.single('file'), (req, res) => {
 })
 
 
-router.post('/accept/:id', (req, res) => {
+router.post('/accept/:userId/:groupeId', (req, res) => {
     let id = req.params.id
+     db.query('insert into groupeMembers set ?', membre, (err, result) => {
+            if (err) throw err
+        })
+        db.query('delete from demandeGroupes where id = ?', id, function(err, result){
+            if (err) throw err;
+            res.send('true')
+        })
     db.query('select userId, groupeId from demandeGroupes where id = ?', id, (err, result) => {
         if (err) throw err;
         let userId = result[0].userId
@@ -55,19 +62,13 @@ router.post('/accept/:id', (req, res) => {
             "userId": userId,
             "groupeRole": "membre"
         }
-        db.query('insert into groupeMembers set ?', membre, (err, result) => {
-            if (err) throw err
-        })
-        db.query('delete from demandeGroupes where id = ?', id, function(err, result){
-            if (err) throw err;
-            res.send('true')
-        })
+       
     })
 })
 
-router.delete('/refuse/:id', (req, res) => {
-    let id = req.params.id
-    db.query('delete from demandeGroupes where id = ?', id, function(err, result){
+router.delete('/refuse/:userId/:groupeId', (req, res) => {
+    let {userId, groupeId} = req.params
+    db.query(`delete from demandeGroupes where userId = ? and groupeId = ?`, [userId, groupeId], function(err, result){
         if (err) throw err;
         res.send('true')
     })
