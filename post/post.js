@@ -34,4 +34,18 @@ router.get('/getPostes/:id', async (req, res) => {
     })
 })
 
+router.get('/getPostesCommentaire/:id', async (req, res) => {
+    let id = req.params.id;
+    db.query('select * from postes where groupeId = ?', id, function(err, result){
+        if (err){
+            console.log(err.message)
+            res.send(null)
+        }
+        else {
+            res.send(result)
+        }
+    })
+})
+
+
 module.exports = router
