@@ -63,4 +63,15 @@ router.get('/demandeExist/:userId', (req, res) => {
     })
 })
 
+router.get('/isAdmin/:userId/:groupeId', async (req, res) => {
+    let userId =  req.params.userId
+    let groupeId =  req.params.groupeId
+    let result = await db.query("select * from groupemembers where userId = ? and groupeId = ? and groupeRole = 'admin'",[userId, groupeId], function(err, result){
+        if (err) console.log(err.message);
+        if (result.length > 0) return res.send(true);
+        else res.send(false)
+    })
+    return result
+})
+
 module.exports = router
