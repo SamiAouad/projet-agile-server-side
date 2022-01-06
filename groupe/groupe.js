@@ -43,10 +43,16 @@ router.post('/createGroupe/:userId', upload.single('file'), (req, res) => {
     db.query('insert into groupes set ?', groupe, (err, result) => {
         if (err) throw err;
         groupeId = result.insertId.toString()
-        db.query("insert into groupemembers set ?", [groupeId, userId, 'admin'], (err, result) => {
+        console.log(groupeId)
+        let member = {
+            groupeId: groupeId,
+            userId: userId,
+            groupeRole: 'admin'
+        }
+        db.query("insert into groupemembers set ?", member, (err, result) => {
             if (err) return err;
-            res.send(result.insertId.toString())
         })
+        res.send(groupeId)
     })
 })
 
