@@ -74,4 +74,20 @@ router.get('/isAdmin/:userId/:groupeId', async (req, res) => {
     return result
 })
 
+router.get('/isVoyageur/:userId/:voyageId', (req, res) => {
+    let userId =  req.params.userId
+    let voyageId =  req.params.voyageId
+    db.query("select * from demandevoyages where userId = ? and voyageId = ?",[userId, voyageId], function(err, result){
+        if (err) console.log(err.message);
+        if (result.length > 0) {
+            if (result[0].demandeStatus === 0)
+                return res.send(false)
+            return res.send(true)
+        }
+        else {
+            res.send(null)
+        }
+    })
+})
+
 module.exports = router
