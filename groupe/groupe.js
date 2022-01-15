@@ -1,10 +1,8 @@
 const express = require('express'), bodyParser = require('body-parser')
 const multer = require('multer')
-
-
+const fs = require('fs');
 const router = express.Router()
 router.use(bodyParser.json())
-
 
 // parse application/x-www-form-urlencoded
 router.use(bodyParser.urlencoded({extended: true}));
@@ -14,6 +12,9 @@ let upload = multer();
 
 
 const db = require('../db.js')
+
+
+
 
 router.post('/joinGroupe/:userId/:groupeId', (req, res) => {
     let demandeGroupe = {
@@ -35,6 +36,7 @@ router.post('/getVoyages/:groupeId', (req, res) => {
 })
 
 router.post('/createGroupe/:userId', upload.single('file'), (req, res) => {
+
     let groupe = req.body
     // req.body containing the groupe title, description
     let userId = req.params.userId
