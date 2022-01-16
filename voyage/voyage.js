@@ -1,12 +1,25 @@
 const express = require('express')
+const multer = require('multer')
+const db = require('../db.js')
+const fs = require("fs");
+const path = require("path");
 
 
 const router = express.Router()
-let multer = require('multer');
-let upload = multer();
+let storage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, './public/images/')     // './public/images/' directory name where save the file
+    },
+    filename: (req, file, callBack) => {
+        callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+})
+
+let upload = multer({
+    storage: storage
+});
 
 
-const db = require('../db.js')
 /*
 router.get('/getVoyages/:groupeId', upload.fields([]), (req, res) => {
     const groupeId = req.params.groupeId
@@ -19,7 +32,7 @@ router.get('/getVoyages/:groupeId', upload.fields([]), (req, res) => {
         return res.send(result)
     })
 })*/
-router.get('/getVoyages/:groupeId/:userId', upload.fields([]), async (req, res) => {
+router.get('/getVoyages/:groupeId/:userId', upload.single('file'), async (req, res) => {
     const groupeId = req.params.groupeId
     const userId = req.params.userId
     const sql = "select * from voyages where groupeId = ?;" +
@@ -34,8 +47,35 @@ router.get('/getVoyages/:groupeId/:userId', upload.fields([]), async (req, res) 
     })
 })
 
-router.post('/createVoyage/:adminId/:groupeId', upload.fields([]), (req, res) => {
-
+router.post('/createVoyage/:userId/:groupeId', upload.single('file'), (req, res) => {
+    let userId = req.params.userId
+    let groupeId = req.params.groupeId
+    const contents = fs.readFileSync('./public/images/' + req.file.filename, {encoding: 'base64'});
+    let voyage = {
+        'adminId': userId,
+        'groupeId': groupeId,
+        'price': req.body.price,
+        'dateStart': req.body.dateStart,
+        'dateEnd': req.body.dateEnd,
+        'capacite': req.body.capacite,
+        'descriptionVoyage': req.body.voyageDescription,
+        'destination': req.body.destination,
+        'image': contents
+    }
+    db.query('insert into voyages set ?', voyage, (err, result) => {
+        if (err) throw err;
+        voyageId = result.insertId.toString()
+        console.log(voyageId)
+        let member = {
+            voyageId: voyageId,
+            userId: userId,
+            voyageRole: 'admin'
+        }
+        db.query("insert into voyagemembers set ?", member, (err, result) => {
+            if (err) return err;
+        })
+        res.send(voyageId)
+    })
 })
 
 router.delete('/deleteVoyages/:idVoyage', function(req, res){

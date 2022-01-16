@@ -93,15 +93,27 @@ router.post('/createCommentaire',upload.fields([]), async function(req, res){
         return res.send(true)
     })
 })
-router.get('/getPostes/:userId', async (req, res) => {
-    let id = req.params.id;
-    db.query('select * from postes where groupeId = ?', id, function(err, result){
+router.get('/getUserPostes/:userId', async (req, res) => {
+    let userId = req.params.userId;
+    let endResult = []
+    await db.query('select groupeId from groupemembers where userId = ?', userId, async function(err, result){
         if (err){
             console.log(err.message)
             res.send(null)
         }
-        else res.send(result)
+        else {
+            await result.map(async groupe => {
+                await db.query('select * from postes where groupeId = ?', groupe.groupeId, function(err, result){
+                    if (result != []){
+                        endResult.push(result)
+                    }
+                })
+            })
+            res.send(endResult)
+        }
     })
+
+
 })
 
 module.exports = router

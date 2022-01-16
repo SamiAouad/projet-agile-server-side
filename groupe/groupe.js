@@ -8,10 +8,22 @@ router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}));
 // serving static files
 
-let upload = multer();
+let storage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, './public/images/')     // './public/images/' directory name where save the file
+    },
+    filename: (req, file, callBack) => {
+        callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+})
+
+let upload = multer({
+    storage: storage
+});
 
 
 const db = require('../db.js')
+const path = require("path");
 
 
 
@@ -39,9 +51,10 @@ router.post('/createGroupe/:userId', upload.single('file'), (req, res) => {
 
     let groupe = req.body
     // req.body containing the groupe title, description
+
     let userId = req.params.userId
-    let groupeId
-    groupe['image'] = req.file
+    const contents = fs.readFileSync('./public/images/' + req.file.filename, {encoding: 'base64'});
+    groupe['image'] = contents
     db.query('insert into groupes set ?', groupe, (err, result) => {
         if (err) throw err;
         groupeId = result.insertId.toString()
@@ -104,7 +117,6 @@ router.post('/createVoyageGroupe', (req, res) => {
     let voyage = req.body
     
 })
-
 
 module.exports = router
 
