@@ -112,8 +112,16 @@ router.get('/getUserPostes/:userId', async (req, res) => {
             res.send(endResult)
         }
     })
+})
 
-
+router.get('/getAll', (req, res) => {
+    db.query('select * from postes', function(err, result){
+        if (err){
+            console.log(err.message)
+            return res.send(false)
+        }
+        return res.send(result)
+    })
 })
 
 module.exports = router
