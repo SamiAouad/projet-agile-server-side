@@ -1,5 +1,5 @@
 const express = require('express'), bodyParser = require('body-parser')
-
+const bcrypt = require('bcrypt')
 
 const router = express.Router()
 router.use(bodyParser.json())
@@ -7,6 +7,22 @@ router.use(bodyParser.json())
 
 
 const db = require('../db.js')
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+let storage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, './public/images/')     // './public/images/' directory name where save the file
+    },
+    filename: (req, file, callBack) => {
+        callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    }
+})
+
+let upload = multer({
+    storage: storage
+});
 
 
 
@@ -14,8 +30,12 @@ router.get('/', (req, res) => {
     res.send("user")
 })
 
-router.post('/signup', (req, res) => {
+router.post('/signup', upload.single('file'), async (req, res) => {
     let user = req.body
+    const contents = fs.readFileSync('./public/images/' + req.file.filename, {encoding: 'base64'});
+    user['image'] = contents
+    const salt = bcrypt.genSaltSync(10);
+    user['passwordHash'] = bcrypt.hashSync(req.body.passwordHash, salt);
     db.query('insert into users set ?', user, function(err, result){
         if (err) throw err;
         res.send(true)
@@ -31,7 +51,7 @@ router.post('/signin', (req, res) => {
             throw err;
         if (result.length === 0) 
             return res.send(false)
-        if (result[0].passwordHash === user.password)
+        if (bcrypt.compareSync(user.password, result[0].passwordHash))
             res.send(result[0])
         else
             res.send(false)
@@ -89,5 +109,7 @@ router.get('/isVoyageur/:userId/:voyageId', (req, res) => {
         }
     })
 })
+
+
 
 module.exports = router
