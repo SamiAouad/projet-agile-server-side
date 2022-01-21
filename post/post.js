@@ -124,4 +124,15 @@ router.get('/getAll', (req, res) => {
     })
 })
 
+router.delete('/deletePost/:posteId', upload.fields([]), (req, res) => {
+    const posteId = req.params.posteId
+    db.query('delete from commentaires where posteId = ?;delete from postes where id = ?', [posteId, posteId] , function(err, result){
+        if (err){
+            console.log(err.message)
+            return res.send(false)
+        }
+        return res.send(true)
+    })
+})
+
 module.exports = router
