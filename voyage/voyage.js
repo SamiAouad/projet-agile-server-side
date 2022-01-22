@@ -78,15 +78,18 @@ router.post('/createVoyage/:userId/:groupeId', upload.single('file'), (req, res)
     })
 })
 
-router.delete('/deleteVoyages/:idVoyage', function(req, res){
+router.delete('/deleteVoyage/:idVoyage', function(req, res){
     console.log(req.params)
-    db.query('delete from voyages where id = ?', req.params.idVoyage, function(err, result) {
+    db.query('delete from demandevoyages where voyageId = ?;' +
+        ' delete from voyagemembers where voyageId = ?;' +
+        'delete from voyages where id = ?;', [req.params.idVoyage, req.params.idVoyage, req.params.idVoyage], function(err, result){
         if (err){
             console.log(err.message)
-            return res.send(false)
+            res.send(false)
         }
-        return res.send(true)
+        else res.send(true)
     })
+
 })
 
 router.delete('/deleteDemandeVoyages/:voyageId/:userId', function(req, res){
@@ -109,4 +112,33 @@ router.post('/ajouterDemandeVoyages', upload.fields([]), function(req, res){
     })
 })
 
+router.get('/getVoyage/:voyageId', (req, res) => {
+    db.query('select * from voyages where id = ?', req.params.voyageId, (err, result) => {
+        if (err){
+            console.log(err.message)
+            res.send(null)
+        }else{
+            res.send(result)
+        }
+    })
+})
+
+
+router.post('/updateVoyage/:voyageId', upload.fields([]), (req, res) => {
+    const price = req.body.price
+    const dateStart = req.body.dateStart
+    const dateEnd = req.body.dateEnd
+    const capacite = req.body.capacite
+
+    db.query('update voyages set price = ?, dateStart = ?, dateEnd = ?, capacite = ? where id = ?', [price, dateStart, dateEnd, capacite,
+        req.params.voyageId], (err, result) => {
+        if (err){
+            console.log(err.message)
+            res.send(false)
+        }
+        else{
+            res.send(true)
+        }
+    })
+})
 module.exports = router
