@@ -37,8 +37,12 @@ router.post('/signup', upload.single('file'), async (req, res) => {
     const salt = bcrypt.genSaltSync(10);
     user['passwordHash'] = bcrypt.hashSync(req.body.passwordHash, salt);
     db.query('insert into users set ?', user, function(err, result){
-        if (err) throw err;
-        res.send(true)
+        if (err) {
+            console.log(err.message)
+            res.send(false)
+        }
+        else
+            res.send(true)
     })
 })
 
