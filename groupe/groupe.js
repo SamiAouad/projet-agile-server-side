@@ -118,7 +118,7 @@ router.delete('/refuse/:userId/:groupeId',upload.fields([]), (req, res) => {
 })
 
 router.get('/getGroupes', (req, res) => {
-    db.query('select * from groupes', (err, result) => {
+    db.query('select * from groupes order by id desc', (err, result) => {
         if (err) res.send(false);
         if (result.length > 0){
             res.send(result)
