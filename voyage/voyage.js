@@ -36,8 +36,8 @@ router.get('/getVoyages/:groupeId/:userId', upload.single('file'), async (req, r
     const groupeId = req.params.groupeId
     const userId = req.params.userId
     const sql = "select * from voyages where groupeId = ?;" +
-        "select voyageId from demandevoyages where userId = ? and demandeStatus = true;" +
-        "select voyageId from demandevoyages where userId = ? and demandeStatus = false;"
+        "select voyageId from voyagemembers where userId = ?;" +
+        "select voyageId from demandevoyages where userId = ?;"
     await db.query(sql, [groupeId, userId, userId], function (err, result){
         if (err){
             console.log(err.message)
@@ -139,6 +139,50 @@ router.post('/updateVoyage/:voyageId', upload.fields([]), (req, res) => {
         else{
             res.send(true)
         }
+    })
+})
+
+router.post('/accept/', upload.fields([]), (req, res) => {
+    let membre = {
+        'userId': req.body.userId,
+        'voyageId': req.body.voyageId,
+        'voyageRole': 'membre'
+    }
+    db.query('insert into voyageMembers set ?', membre, (err, result) => {
+        if (err) {
+            console.log(err.message)
+        }
+    })
+    db.query('delete from demandeVoyages where id = ?', req.body.id, function(err, result){
+        if (err) {
+            console.log(err.message)
+            res.send(false)
+        }
+        else res.send(true)
+    })
+})
+
+router.get('/getDemandes/:voyageId', (req, res) => {
+    db.query('select users.id as userId, users.image, users.username, users.email, users.firstname, users.lastname, demandevoyages.id, demandevoyages.voyageId' +
+        '  from demandevoyages, users where userId = users.id and voyageId = ?', req.params.voyageId, (err, result) => {
+        if (err){
+            console.log(err.message)
+            res.send(null)
+        }
+        else
+        {
+            res.send(result)
+        }
+    })
+} )
+
+router.delete('/deleteVoyageMember/:userId/:voyageId', function(req, res){
+    db.query('delete from voyagemembers where voyageId = ? and userId = ?', [req.params.voyageId, req.params.userId], function(err, result) {
+        if (err){
+            console.log(err.message)
+            return res.send(false)
+        }
+        return res.send(true)
     })
 })
 module.exports = router

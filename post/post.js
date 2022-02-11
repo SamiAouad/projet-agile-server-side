@@ -2,6 +2,7 @@ const express = require('express')
 const db = require('../db.js')
 const path = require('path')
 const fs = require('fs')
+const mysql = require('mysql2/promise');
 
 const router = express.Router()
 let multer = require('multer');
@@ -93,6 +94,7 @@ router.post('/createCommentaire',upload.fields([]), async function(req, res){
         return res.send(true)
     })
 })
+/*
 router.get('/getUserPostes/:userId', async (req, res) => {
     let userId = req.params.userId;
     let endResult = []
@@ -112,7 +114,22 @@ router.get('/getUserPostes/:userId', async (req, res) => {
             res.send(endResult)
         }
     })
-})
+})*/
+
+router.get('/getUserPostes/:userId', (req, res) => {
+    const userId = req.params.userId;
+    console.log(userId)
+    db.query('select postes.* from groupemembers, postes where groupemembers.userId = ? and groupemembers.groupeId ' +
+        '= postes.groupeId', userId, (err, result) => {
+        if (err){
+            console.log(err.message)
+            res.sendStatus(500)
+        }
+        else{
+            res.send(result)
+        }
+    })
+});
 
 router.get('/getAll', (req, res) => {
     db.query('select * from postes', function(err, result){
