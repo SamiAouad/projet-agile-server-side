@@ -175,4 +175,14 @@ router.get('/getDemandes/:voyageId', (req, res) => {
         }
     })
 } )
+
+router.delete('/deleteVoyageMember/:userId/:voyageId', function(req, res){
+    db.query('delete from voyagemembers where voyageId = ? and userId = ?', [req.params.voyageId, req.params.userId], function(err, result) {
+        if (err){
+            console.log(err.message)
+            return res.send(false)
+        }
+        return res.send(true)
+    })
+})
 module.exports = router
